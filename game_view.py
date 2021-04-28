@@ -53,4 +53,6 @@ class PyGameView(View):
         """
         background = pygame.image.load("./game_assets/factory_path/map1_basic.png")
         self._screen.blit(background, (0, 0))
-        pygame.display.flip()
+        for package in self._gameboard._packages:
+            self._screen.blit(package._surf, package._rect)
+        pygame.display.flip() 
