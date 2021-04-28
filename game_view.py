@@ -1,15 +1,17 @@
 import pygame
 from abc import ABC, abstractmethod
+pygame.init()
 
 class View(ABC):
     """
     View Logisti Co. game.
 
     Attrbitues:
-        _gameboard: a Factory instance.
+        _gameboard: the active Factory instance.
+        _screen: the PyGame Display instance.
     """
 
-    def __init__(self,gameboard):
+    def __init__(self, gameboard):
         """
         Initialize gameboard.
 
@@ -31,3 +33,24 @@ class View(ABC):
         Draw the gameboard Factory instance.
         """
         pass
+
+
+class PyGameView(View):
+    """
+    A PyGame viewer for Logisti Co.
+
+    Attributes:
+        _screen: the PyGame Display instance.
+    """
+    
+    def __init__(self, gameboard):
+        super(PyGameView, self).__init__(gameboard)
+        self._screen = pygame.display.set_mode([800, 600])
+        
+    def draw(self):
+        """
+        Updates the view to include background image, packages, and towers.
+        """
+        background = pygame.image.load("./game_assets/factory_path/map1_basic.png")
+        self._screen.blit(background, (0, 0))
+        pygame.display.flip()
