@@ -4,8 +4,7 @@ import game_view
 pygame.init()
 
 
-
-class Package(ABC, pygame.sprite.Sprite):
+class Package(pygame.sprite.Sprite):
     """
     Package representation
 
@@ -32,28 +31,30 @@ class Package(ABC, pygame.sprite.Sprite):
         super(Package, self).__init__()
         self._surf = pygame.Surface((25, 25))
         self._surf.fill((128, 128, 128))
-        self._rect = self.surf.get_rect()
-        self._rect.center = (int(self._location[0]), int(self._location[1])
-
+        self._rect = self._surf.get_rect()
+        self._rect.center = (int(self._location[0]), int(self._location[1]))
 
     def move(self):
         """
-        Move the package for the game tick
+        Move the package for the game tick along the path.
         """
+        # Move onto the next waypoint if reached
+        if self._rect.center == self._path[0]:
+            self._path = self._path[1:]
         # Calculate the normalized direction and use it to transform location
         # with a certain speed
         distance = ((self.location[0] - self._path[0][0])**2 + \
                     (self.location[1] - self._path[0][1])**2)**(1/2)
-        direction = ((self.location[0] - self._path[0][0])/distance, \
-                    (self.location[1] - self._path[0][1])/distance)
+        direction = ((self._path[0][0] - self.location[0])/distance, \
+                    (self._path[0][1] - self.location[1])/distance)
         # The speed, in pixels/tic, which the package will move
         speed = 1
         displacement = (direction[0]*speed, direction[1]*speed)
         self._location = (self._location[0]+displacement[0], self._location[1]+displacement[1])
         
-        # Move onto the next waypoint if reached
-        if self._rect.center == self._location:
-            self._path = self.path[1:]
+        self._rect.center = (int(self._location[0]), int(self._location[1]))
+        print(self._location)
+
         
     @property
     def location(self):
@@ -178,17 +179,19 @@ class Factory():
         self._packages = pygame.sprite.Group()
         self._robots = pygame.sprite.Group()
         self._tower_count = tower_count
-        self._path = [(0,84), (675,84), (675,213), (112,213), (112,366), (675, 366), (675,526), (0, 526)]
+        self._path = [(0,84), (675,84), (675,213), (112,213), (112,366), (675,366), (675,526), (0,526)]
         self._packed = 0
     
     def main(self):
         view = game_view.PyGameView(self)
+        self.generate_package()
+        clock = pygame.time.Clock()
         while True:
             for package in self._packages:
                 package.move()
+            
             view.draw()
-
-
+            clock.tick(60)
 
     def generate_tower(self,x,y):
         """
@@ -208,7 +211,7 @@ class Factory():
             x: the x-axis location of the package in pixels
             y: the y-axis location of the package in pixels
         """
-        self._packages.add(Package(self.path[0][0],self.path[0][1],self._path))
+        self._packages.add(Package(self._path[0][0],self._path[0][1],self._path))
 
     def close_to(self,robot):
         """
@@ -257,3 +260,12 @@ class Factory():
         """
         return self._packed
     
+class Generator():
+    """
+    A generator of Package objects for Logisti Co. game.
+
+    Attributes:
+        _factory: the Factory instance to generate 
+    """
+    def __init__(self, factory):
+        self._factory = factory
