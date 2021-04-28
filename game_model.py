@@ -41,6 +41,9 @@ class Package(pygame.sprite.Sprite):
         # Move onto the next waypoint if reached
         if self._rect.center == self._path[0]:
             self._path = self._path[1:]
+        # Detect if the list is too short
+        if len(self._path) == 0:
+            return False
         # Calculate the normalized direction and use it to transform location
         # with a certain speed
         distance = ((self.location[0] - self._path[0][0])**2 + \
@@ -53,9 +56,7 @@ class Package(pygame.sprite.Sprite):
         self._location = (self._location[0]+displacement[0], self._location[1]+displacement[1])
         
         self._rect.center = (int(self._location[0]), int(self._location[1]))
-        print(self._location)
 
-        
     @property
     def location(self):
         """
@@ -97,8 +98,6 @@ class ColorPackage(Package):
 
     def get_RGB(self):
         return self.package_colors[self.color]
-
-
 
 class Tower(ABC):
     """
@@ -181,17 +180,28 @@ class Factory():
         self._tower_count = tower_count
         self._path = [(0,84), (675,84), (675,213), (112,213), (112,366), (675,366), (675,526), (0,526)]
         self._packed = 0
+        self._failed = 0
     
     def main(self):
         view = game_view.PyGameView(self)
-        self.generate_package()
         clock = pygame.time.Clock()
+        gen_rate = 200
+        generator = Generator(self, gen_rate, self._path)
         while True:
-            for package in self._packages:
-                package.move()
-            
+            generator.update()
+            self.update_packages()
+            print(self._failed)
             view.draw()
             clock.tick(60)
+    
+    def update_packages(self):
+        """
+        Check validity of Package instance, update position of all packages.
+        """
+        for package in self._packages:
+            if package.move() == False:
+                package.kill()
+                self._failed += 1
 
     def generate_tower(self,x,y):
         """
@@ -267,5 +277,40 @@ class Generator():
     Attributes:
         _factory: the Factory instance to generate 
     """
-    def __init__(self, factory):
+    def __init__(self, factory, gen_rate, path):
+        """
+        Initialize factory, gen_rate, tick_count, attributes.
+
+        Args:
+            factory: a Factory instance.
+            gen_rate: an integer representing the number of game ticks needed
+                      to generate a package.
+            path: a list of tuple coordinates which represent the route a
+                  package will take.
+        """
         self._factory = factory
+        self._gen_rate = gen_rate
+        self._path = path
+        self._tick_count = 0
+    
+    def generate_package(self):
+        """
+        Generates a new package in the Factory instance.
+        """
+        self._factory.generate_package()
+    
+    def update(self):
+        """
+        Track change in _tick_count & generates package at given interval.
+        """
+        self._tick_count += 1
+        if self._tick_count % self._gen_rate == 0:
+            self.generate_package()
+    
+    @property
+    def tick_count(self):
+        """
+        Returns current _tick_count value.
+        """
+        return self._tick_count
+

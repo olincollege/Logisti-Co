@@ -51,7 +51,7 @@ class PyGameView(View):
         """
         Updates the view to include background image, packages, and towers.
         """
-        background = pygame.image.load("./game_assets/factory_path/map1_basic.png")
+        background = pygame.image.load("./game_assets/factory_path/Map1.png")
         self._screen.blit(background, (0, 0))
         for package in self._gameboard._packages:
             self._screen.blit(package._surf, package._rect)
