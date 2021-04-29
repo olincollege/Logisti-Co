@@ -85,7 +85,14 @@ class ColorPackage(Package):
         super(ColorPackage, self).__init__(x,y,path)
         self._color = color
         self.surf.fill(self.get_RGB())
+        self._package_colors = {"red":(255,0,0),"green":(0,255,0),
+                                "blue":(0,0,255)}
 
+    def get_RGB(self):
+        """
+        Return color of package in RGB.
+        """
+        return self._package_colors[self.color]
 
     @property
     def color(self):
@@ -93,11 +100,6 @@ class ColorPackage(Package):
         Returns the color of the package
         """
         return self._color
-    
-    package_colors = {"red": (255,0,0), "green": (0,255,0), "blue": (0,0,255)}
-
-    def get_RGB(self):
-        return self.package_colors[self.color]
 
 class Tower(ABC):
     """
@@ -124,6 +126,13 @@ class Tower(ABC):
         self._rate = rate
         self._radius = radius
 
+    @abstractmethod
+    def waiting(self):
+        """
+        Defined abstract method for waiting and for how long.
+        """
+        pass
+
     @property
     def location(self):
         """
@@ -139,7 +148,7 @@ class Tower(ABC):
         return self._rate
     
     @property
-    def _radius(self):
+    def radius(self):
         """
         Returns active radius of the tower.
         """
@@ -151,6 +160,62 @@ class Tower(ABC):
         Process a package instance within a certain radius & time.
         """
         pass
+
+class ColorTower(Tower):
+    """
+    A representation of a Tower with color.
+
+    Attributes:
+        _color: a string describing the color of the package
+        tower_colors: a dict mapping package colors to RGB codes.
+    """
+
+    def __init__(self,x,y,rate,radius,color):
+        """
+        Initializes a colored Tower.
+
+        Args:
+            x: the x-axis location of the Tower in pixels
+            y: the y-axis location of the Tower in pixels
+            rate: a float representing the number of packages the Tower can
+                  process per second.
+            radius: an int representing the active radius which the Tower can
+                    process an incoming package.
+            color: a str describing the color of the package
+        """
+        super(ColorTower, self).__init__(x,y,rate,radius)
+        self._color = color
+        self.surf.fill(self.get_RGB())
+        self._tower_colors = {"red":(255,0,0),"green":(0,255,0),"blue":(0,0,255)}
+        self._waiting = False
+
+    def get_RGB(self):
+        """
+        Return color of Tower in RGB.
+        """
+        return self._tower_colors[self.color]
+    
+    def wait(self):
+        """
+        Wait for a given amount of time to process package.
+        """
+        self._waiting = True
+        pygame.time.wait(1000/self.rate)
+        self._waiting = False
+    
+    @property
+    def waiting(self):
+        """
+        Returns True is wait function is running, False otherwise.
+        """
+        return self._waiting
+
+    @property
+    def color(self):
+        """
+        Returns the color of the Tower.
+        """
+        return self._color
 
 class Factory():
     """
@@ -190,10 +255,24 @@ class Factory():
         while True:
             generator.update()
             self.update_packages()
+            self.update_robots()
             print(self._failed)
             view.draw()
             clock.tick(60)
     
+    def update_robots(self):
+        """
+        Check if Package instances are within range of a given Tower instance.
+        """
+        for robot in self._robots:
+            for package in self._packages:
+                if robot.color == package.color and \
+                ((package.location[0]-robot.location[0])**2 + \
+                (package.location[1]-robot.location[1])**2)**1/2 \
+                <= robot.radius and robot.waiting is False:
+                    package.kill()
+                    self._packed += 1
+
     def update_packages(self):
         """
         Check validity of Package instance, update position of all packages.
@@ -313,4 +392,3 @@ class Generator():
         Returns current _tick_count value.
         """
         return self._tick_count
-
