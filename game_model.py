@@ -187,7 +187,8 @@ class ColorTower(Tower):
         self._color = color
         self.surf.fill(self.get_RGB())
         self._tower_colors = {"red":(255,0,0),"green":(0,255,0),"blue":(0,0,255)}
-        self._waiting = False
+        self._ready = True
+        self._tick = 1
 
     def get_RGB(self):
         """
@@ -195,20 +196,26 @@ class ColorTower(Tower):
         """
         return self._tower_colors[self.color]
     
-    def wait(self):
+    def flip_ready(self):
         """
-        Wait for a given amount of time to process package.
+        Flip ready state of the tower
         """
-        self._waiting = True
-        pygame.time.wait(1000/self.rate)
-        self._waiting = False
+        self._ready = not self._ready
+    
+    def update_ready(self):
+        """
+        Update ready state based off of Tower rate.
+        """
+        if self._tick >= self._rate:
+            self._ready = True
+        self._tick += 1
     
     @property
-    def waiting(self):
+    def ready(self):
         """
         Returns True is wait function is running, False otherwise.
         """
-        return self._waiting
+        return self._ready
 
     @property
     def color(self):
@@ -265,13 +272,13 @@ class Factory():
         Check if Package instances are within range of a given Tower instance.
         """
         for robot in self._robots:
-            for package in self._packages:
-                if robot.color == package.color and \
-                ((package.location[0]-robot.location[0])**2 + \
-                (package.location[1]-robot.location[1])**2)**1/2 \
-                <= robot.radius and robot.waiting is False:
-                    package.kill()
+            if robot.ready() == True:
+                closest_package = closest_to(robot)
+                if closest_package != None and robot.color == package.color:
+                    closest_package.kill()
                     self._packed += 1
+                    robot.flip_ready()
+            robot.update_ready()
 
     def update_packages(self):
         """
@@ -302,7 +309,7 @@ class Factory():
         """
         self._packages.add(Package(self._path[0][0],self._path[0][1],self._path))
 
-    def close_to(self,robot):
+    def closest_to(self,robot):
         """
         Returns Package instances within radius of given Tower instance.
 
@@ -310,16 +317,17 @@ class Factory():
             robot: a Tower instance placed onto the gameboard
         
         Returns:
-            close_packages: a list of all of the Package instances within range
-                            of the given Tower instance.
+            closest_package: The closest Package instance in range, else None.
         """
-        close_packages = []
+        closest_package = None
+        closest_distance = float("inf")
         for package in self._packages:
             distance = ((package.location()[0] - robot.location()[0])**2 + \
                        (package.location()[1] - robot.location()[1])**2)**(1/2)
             if distance <= robot.radius():
-                close_packages.append(package)
-        return close_packages
+                if distance < closest_distance:
+                    closest_package = package
+        return closest_package
 
     @property
     def packages(self):
