@@ -47,7 +47,7 @@ class PyGameView(View):
         super(PyGameView, self).__init__(gameboard)
         self._screen = pygame.display.set_mode([800, 600])
         
-    def draw(self):
+    def draw(self): 
         """
         Updates the view to include background image, packages, and towers.
         """
@@ -55,4 +55,7 @@ class PyGameView(View):
         self._screen.blit(background, (0, 0))
         for package in self._gameboard._packages:
             self._screen.blit(package._surf, package._rect)
+        
+        for tower in self._gameboard._robots:
+            self._screen.blit(tower._surf, tower._circle)
         pygame.display.flip() 
