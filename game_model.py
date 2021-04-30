@@ -101,7 +101,7 @@ class ColorPackage(Package):
         """
         return self._color
 
-class Tower(ABC):
+class Tower(pygame.sprite.Sprite):
     """
     Representation of the robot tower.
 
@@ -125,13 +125,34 @@ class Tower(ABC):
         self._location = [x,y]
         self._rate = rate
         self._radius = radius
+        self._ready = True
+        self._tick = 1
 
-    @abstractmethod
-    def waiting(self):
+        super(Tower, self).__init__()
+        self._surf = pygame.Surface((25, 25))
+        self._color = ((128, 128, 128))
+        self._circle = pygame.draw.circle(self._surf,self._color,self._location,25)
+
+    def flip_ready(self):
         """
-        Defined abstract method for waiting and for how long.
+        Flip ready state of the tower
         """
-        pass
+        self._ready = not self._ready
+    
+    def update_ready(self):
+        """
+        Update ready state based off of Tower rate.
+        """
+        if self._tick >= self._rate:
+            self._ready = True
+        self._tick += 1
+    
+    @property
+    def ready(self):
+        """
+        Returns True is wait function is running, False otherwise.
+        """
+        return self._ready
 
     @property
     def location(self):
@@ -153,13 +174,6 @@ class Tower(ABC):
         Returns active radius of the tower.
         """
         return self._radius
-    
-    @abstractmethod
-    def remove_package(self):
-        """
-        Process a package instance within a certain radius & time.
-        """
-        pass
 
 class ColorTower(Tower):
     """
@@ -187,35 +201,12 @@ class ColorTower(Tower):
         self._color = color
         self.surf.fill(self.get_RGB())
         self._tower_colors = {"red":(255,0,0),"green":(0,255,0),"blue":(0,0,255)}
-        self._ready = True
-        self._tick = 1
 
     def get_RGB(self):
         """
         Return color of Tower in RGB.
         """
         return self._tower_colors[self.color]
-    
-    def flip_ready(self):
-        """
-        Flip ready state of the tower
-        """
-        self._ready = not self._ready
-    
-    def update_ready(self):
-        """
-        Update ready state based off of Tower rate.
-        """
-        if self._tick >= self._rate:
-            self._ready = True
-        self._tick += 1
-    
-    @property
-    def ready(self):
-        """
-        Returns True is wait function is running, False otherwise.
-        """
-        return self._ready
 
     @property
     def color(self):
@@ -257,8 +248,9 @@ class Factory():
     def main(self):
         view = game_view.PyGameView(self)
         clock = pygame.time.Clock()
-        gen_rate = 200
+        gen_rate = 100
         generator = Generator(self, gen_rate, self._path)
+        self.generate_tower(585,149,300,150)
         while True:
             generator.update()
             self.update_packages()
@@ -272,9 +264,9 @@ class Factory():
         Check if Package instances are within range of a given Tower instance.
         """
         for robot in self._robots:
-            if robot.ready() == True:
-                closest_package = closest_to(robot)
-                if closest_package != None and robot.color == package.color:
+            if robot.ready:
+                closest_package = self.closest_to(robot)
+                if closest_package != None: #and robot.color == package.color: 
                     closest_package.kill()
                     self._packed += 1
                     robot.flip_ready()
@@ -289,7 +281,7 @@ class Factory():
                 package.kill()
                 self._failed += 1
 
-    def generate_tower(self,x,y):
+    def generate_tower(self,x,y,rate,radius):
         """
         Create a tower given a positional input.
 
@@ -297,7 +289,7 @@ class Factory():
             x: the x-axis location of the package in pixels
             y: the y-axis location of the package in pixels
         """
-        pass
+        self._robots.add(Tower(x,y,rate,radius))
 
     def generate_package(self):
         """
@@ -322,9 +314,9 @@ class Factory():
         closest_package = None
         closest_distance = float("inf")
         for package in self._packages:
-            distance = ((package.location()[0] - robot.location()[0])**2 + \
-                       (package.location()[1] - robot.location()[1])**2)**(1/2)
-            if distance <= robot.radius():
+            distance = ((package.location[0] - robot.location[0])**2 + \
+                       (package.location[1] - robot.location[1])**2)**(1/2)
+            if distance <= robot.radius:
                 if distance < closest_distance:
                     closest_package = package
         return closest_package
