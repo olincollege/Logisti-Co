@@ -1,8 +1,21 @@
 import pygame
 from abc import ABC, abstractmethod
 import game_view
+import game_control
 pygame.init()
 
+from pygame.locals import (
+    RLEACCEL,
+    K_UP,
+    K_DOWN,
+    K_LEFT,
+    K_RIGHT,
+    K_ESCAPE,
+    KEYDOWN,
+    MOUSEBUTTONDOWN,
+    MOUSEBUTTONUP,
+    QUIT,
+)
 
 class Package(pygame.sprite.Sprite):
     """
@@ -129,15 +142,18 @@ class Tower(pygame.sprite.Sprite):
         self._tick = 1
 
         super(Tower, self).__init__()
-        self._surf = pygame.Surface((25, 25))
-        self._color = ((128, 128, 128))
-        self._circle = pygame.draw.circle(self._surf,self._color,self._location,25)
+        self._surf = pygame.image.load("./game_assets/robots/Robot_center.png").convert()
+        self._surf.set_colorkey((255, 255, 255), RLEACCEL)
+        size = self._surf.get_size()
+        self._surf = pygame.transform.scale(self._surf, (int(size[0]*0.1), int(size[1]*0.1)))
+        self._rect = self._surf.get_rect(center = self._location)
 
-    def flip_ready(self):
+    def ready_reset(self):
         """
-        Flip ready state of the tower
+        Reset the ready state of the tower to false and reset tick
         """
-        self._ready = not self._ready
+        self._ready = False
+        self._tick = 1
     
     def update_ready(self):
         """
@@ -247,16 +263,17 @@ class Factory():
     
     def main(self):
         view = game_view.PyGameView(self)
+        controller = game_control.MouseControl(self)
         clock = pygame.time.Clock()
         gen_rate = 100
         generator = Generator(self, gen_rate, self._path)
-        self.generate_tower(585,149,300,150)
+        #self.generate_tower(600,84,300,150)
         while True:
             generator.update()
             self.update_packages()
             self.update_robots()
-            print(self._failed)
             view.draw()
+            controller.control()
             clock.tick(60)
     
     def update_robots(self):
@@ -269,7 +286,7 @@ class Factory():
                 if closest_package != None: #and robot.color == package.color: 
                     closest_package.kill()
                     self._packed += 1
-                    robot.flip_ready()
+                    robot.ready_reset()
             robot.update_ready()
 
     def update_packages(self):
@@ -289,7 +306,9 @@ class Factory():
             x: the x-axis location of the package in pixels
             y: the y-axis location of the package in pixels
         """
-        self._robots.add(Tower(x,y,rate,radius))
+        if self._tower_count > 0:
+            self._robots.add(Tower(x,y,rate,radius))
+            self._tower_count += -1
 
     def generate_package(self):
         """
@@ -319,6 +338,7 @@ class Factory():
             if distance <= robot.radius:
                 if distance < closest_distance:
                     closest_package = package
+                    closest_distance = distance
         return closest_package
 
     @property

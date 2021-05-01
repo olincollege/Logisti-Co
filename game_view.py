@@ -57,5 +57,5 @@ class PyGameView(View):
             self._screen.blit(package._surf, package._rect)
         
         for tower in self._gameboard._robots:
-            self._screen.blit(tower._surf, tower._circle)
+            self._screen.blit(tower._surf, tower._rect)
         pygame.display.flip() 
