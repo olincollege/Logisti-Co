@@ -27,7 +27,7 @@ package_move_cases = [
     (0, 0, [(0,0),(0,0)],   (0,0)),
 ]
 @pytest.mark.parametrize("x, y, path, output",package_move_cases)
-def test_package_move(x, y, path):
+def test_package_move(x, y, path, output):
     """
     Test movement of Package class.
 
@@ -58,7 +58,7 @@ package_no_move_cases = [
     (0, 0, [(0,0),(0,-10)],   True),
 ]
 @pytest.mark.parametrize("x, y, path, output",package_no_move_cases)
-def test_package_no_move(x, y, path):
+def test_package_no_move(x, y, path, output):
     """
     Test movement of Package class.
 
