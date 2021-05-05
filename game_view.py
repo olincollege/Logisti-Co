@@ -48,6 +48,7 @@ class PyGameView(View):
         self._screen = pygame.display.set_mode([800, 600])
         self._successful_packages = VisualText("Successes: ", (400, 0))
         self._failed_packages = VisualText("Failures: ", (0, 0))
+        self._available_towers = VisualText("Towers Available: ", (100, 50))
         
     def draw(self): 
         """
@@ -63,8 +64,10 @@ class PyGameView(View):
         
         self._successful_packages.update(self._gameboard.packed)
         self._failed_packages.update(self._gameboard.failed)
+        self._available_towers.update(self._gameboard.tower_count)
         self._screen.blit(self._successful_packages.text, self._successful_packages.location)
         self._screen.blit(self._failed_packages.text, self._failed_packages.location)
+        self._screen.blit(self._available_towers.text, self._available_towers.location)
         pygame.display.flip() 
 
 

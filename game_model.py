@@ -341,6 +341,15 @@ class Factory():
                     closest_distance = distance
         return closest_package
 
+    def remove_tower(self, tower):
+        """
+        Remove the tower from gameplay, and increase the number of available
+        towers.
+        """
+        tower.kill()
+        self._tower_count += 1
+
+
     @property
     def packages(self):
         """
