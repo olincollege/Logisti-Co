@@ -4,7 +4,7 @@ Test functions
 
 import pytest
 import pygame
-
+import game_model
 from game_model import (
     Package,
     ColorPackage,
@@ -37,6 +37,7 @@ def test_package_move(x, y, path, output):
         y: the y-axis location of the package in pixels
         path: a list of tuple coordinates depicting the pixel waypoints the
               package should reach.
+        output: expected output of the function.
     """
     package = Package(x, y, path)
     package.move()
@@ -68,12 +69,12 @@ def test_package_no_move(x, y, path, output):
         y: the y-axis location of the package in pixels
         path: a list of tuple coordinates depicting the pixel waypoints the
               package should reach.
-        output:
+        output: expected output of the function.
     """
     package = Package(x, y, path)
     assert package.move() == output
 
-
+############ CONSTRUCTION BELOW ################
 # Define sets of test cases.
 tower_update_ready_cases = [
     # test rate of 1 is True after 100 cycles.FileNotFoundError()
@@ -91,8 +92,27 @@ def test_tower_update_ready(update_count, rate, output):
 
     Args:
         rate: the rate at which the tower can process Package classes.
+        output: expected output of the function.
     """
     tower = Tower(0, 0, rate, 10)
     for i in len(update_count):
         tower.update_ready()
     assert tower.ready == output
+
+# Define sets of test cases.
+factory_update_robots_cases = [
+    # test 
+    (amount_robot,amount_packages,[(x,y)],[(a,b)],robot_rate,cycle_count, output)
+
+    #
+]
+
+@pytest.mark.parametrize("tower_count,output", factory_update_robots_cases)
+def test_factory_update_robots(tower_count,output):
+    """
+    
+    Args:
+        output: expected output of the function.
+    """
+    factory = Factory(tower_count)
+    assert factory. == output
