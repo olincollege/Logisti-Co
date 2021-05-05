@@ -268,8 +268,8 @@ class Factory():
         view = game_view.PyGameView(self)
         controller = game_control.MouseControl(self)
         clock = pygame.time.Clock()
-        gen_rate = 100
-        generator = Generator(self, gen_rate, self._path)
+        gen_rate = 300
+        generator = ExponentialGenerator(self, gen_rate, self._path, 0.95)
         #self.generate_tower(600,84,300,150)
         while True:
             generator.update()
@@ -344,6 +344,15 @@ class Factory():
                     closest_distance = distance
         return closest_package
 
+    def remove_tower(self, tower):
+        """
+        Remove the tower from gameplay, and increase the number of available
+        towers.
+        """
+        tower.kill()
+        self._tower_count += 1
+
+
     @property
     def packages(self):
         """
@@ -371,6 +380,13 @@ class Factory():
         Returns number of Package instances processed.
         """
         return self._packed
+    
+    @property
+    def failed(self):
+        """
+        Returns number of Packages that reached the end.
+        """
+        return self._failed
     
 class Generator():
     """
@@ -415,3 +431,54 @@ class Generator():
         Returns current _tick_count value.
         """
         return self._tick_count
+
+class IncreasingGenerator(Generator):
+    """
+    A generator which linearly increases the rate at which it produces
+    packages.
+
+    Attributes:
+        _decrease: a float denoting the linear decrease in time to generate
+        a package per tick.
+    """
+    def __init__(self, factory, gen_rate, path, decrease):
+        super(IncreasingGenerator, self).__init__(factory, gen_rate, path)
+        self._decrease = decrease
+    
+    def update(self):
+        """
+        Increment _tick_count, generate packages if the tick is larger than
+        rate, and decrease the time to produce a package.
+        """
+        self._tick_count += 1
+        if self._tick_count >= self._gen_rate:
+            self.generate_package()
+            if self._gen_rate >= 30:
+                self._gen_rate += - self._decrease
+            self._tick_count = 0
+
+class ExponentialGenerator(Generator):
+    """
+    A generator which exponentially increases the rate at which it produces
+    packages.
+
+    Attributes:
+        _proportion: a float denoting the exponential proportion between the
+        time to generate the current package and the next package.
+    """
+    def __init__(self, factory, gen_rate, path, proportion):
+        super(ExponentialGenerator, self).__init__(factory, gen_rate, path)
+        self._proportion = proportion
+    
+    def update(self):
+        """
+        Increment _tick_count, generate packages if the tick is larger than
+        rate, and decrease the time to produce a package.
+        """
+        self._tick_count += 1
+        if self._tick_count >= self._gen_rate:
+            self.generate_package()
+            if self._gen_rate >= 30:
+                self._gen_rate *= self._proportion
+            self._tick_count = 0
+    
