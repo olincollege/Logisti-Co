@@ -3,6 +3,7 @@ Test functions
 """
 
 import pytest
+import pygame
 
 from game_model import (
     Package,
@@ -67,6 +68,33 @@ def test_package_no_move(x, y, path, output):
         y: the y-axis location of the package in pixels
         path: a list of tuple coordinates depicting the pixel waypoints the
               package should reach.
+        output:
     """
     package = Package(x, y, path)
     assert package.move() == output
+
+
+# Define sets of test cases.
+tower_update_ready_cases = [
+    # test rate of 1 is True after 100 cycles.FileNotFoundError()
+    (100, 1, True),
+    # test rate of 100 is False after one cycle.
+    (1, 100, False),
+    # test rate of 0 is always True after 100 cycles.
+    (100, 0, True),
+
+]
+@pytest.mark.parametrize("rate, output",tower_update_ready_cases)
+def test_tower_update_ready(update_count, rate, output):
+    """
+    Test reset timer on Tower class.
+
+    Args:
+        rate: the rate at which the tower can process Package classes.
+    """
+    tower = Tower(0, 0, rate, 10)
+    for i in len(update_count):
+        tower.update_ready()
+    assert tower.ready == output
+
+

@@ -137,14 +137,14 @@ class Tower(pygame.sprite.Sprite):
         Args:
             x: the x-axis location of the package in pixels
             y: the y-axis location of the package in pixels
-            rate: the rate at which the tower can process ColorPackage classes.
+            rate: the rate at which the tower can process Package classes.
             radius: the distance from the tower which the robot can process
                     packages.
         """
         self._location = [x,y]
         self._rate = rate
         self._radius = radius
-        self._ready = True
+        self._ready = False
         self._tick = 1
 
         super(Tower, self).__init__()
