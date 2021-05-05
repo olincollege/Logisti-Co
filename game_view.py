@@ -45,17 +45,20 @@ class PyGameView(View):
     
     def __init__(self, gameboard):
         super(PyGameView, self).__init__(gameboard)
-        self._screen = pygame.display.set_mode([800, 600])
-        self._successful_packages = VisualText("Successes: ", (400, 0))
-        self._failed_packages = VisualText("Failures: ", (0, 0))
-        self._available_towers = VisualText("Towers Available: ", (100, 50))
+        self._screen = pygame.display.set_mode([1100, 600])
+        self._successful_packages = VisualText("Successes: ", (800, 0), 30)
+        self._failed_packages = VisualText("Failures: ", (800, 50), 30)
+        self._available_towers = VisualText("Towers Available: ", (800, 100), 30)
+
         
     def draw(self): 
         """
         Updates the view to include background image, packages, and towers.
         """
         background = pygame.image.load("./game_assets/factory_path/Map1.png")
+        menu = pygame.image.load("./game_assets/factory_path/menu_back.png")
         self._screen.blit(background, (0, 0))
+        self._screen.blit(menu, (800, 0))
         for package in self._gameboard._packages:
             self._screen.blit(package._surf, package._rect)
         
@@ -83,8 +86,8 @@ class VisualText():
         color: a tuple denoting RGB color values for the text.
     """
 
-    def __init__(self, text_label, location):
-        self._font = pygame.font.Font('./game_assets/fonts/Mayor.ttf', 30)
+    def __init__(self, text_label, location, font_size):
+        self._font = pygame.font.SysFont('arial', font_size)
         self.text_label = text_label
         self.color = (255, 255, 255)
         self._text = self._font.render(text_label, True, self.color)
@@ -98,6 +101,7 @@ class VisualText():
             text: Any object instance with a repr that will be displayed using
                   text.
         """
+
         self._text = self._font.render(self.text_label + str(text), \
             True, (255, 255, 255))
 

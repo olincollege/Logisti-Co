@@ -69,16 +69,15 @@ class MouseControl(Control):
         """
         if click == 1:
             mouse_position = pygame.mouse.get_pos()
-            # if 0<=mouse_position[0]<=800 and 0<=mouse_position[1]<=600:
-            self._gameboard.generate_tower(mouse_position[0], \
-            mouse_position[1], 300, 100)
+            if 0<=mouse_position[0]<=800 and 0<=mouse_position[1]<=600:
+                self._gameboard.generate_tower(mouse_position[0], \
+                mouse_position[1], 300, 100)
     
     def tower_removal(self, click):
         """
         Attempt to remove a tower where clicked.
         """
         if click == 3:
-            print("removing towers")
             mouse_position = pygame.mouse.get_pos()
             clicked_towers = [tower for tower in self._gameboard._robots if tower._rect.collidepoint(mouse_position)]
             for tower in clicked_towers:
