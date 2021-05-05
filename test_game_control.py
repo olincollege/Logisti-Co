@@ -3,22 +3,13 @@ Test functions
 """
 
 import pytest
+import pygame
 
-from file import (
-    functions
+from game_model import (
+    Package,
+    ColorPackage,
+    Tower,
+    ColorTower,
+    Factory,
+    Generator,
 )
-
-
-# Define sets of test cases.
-sample_cases = [
-    # case 1
-    (input, output),
-]
-@pytest.mark.parametrize("inputs",sample_cases)
-def test_function(inputs):
-    """
-    Description goes here
-    Args:
-        inputs: the inputs of the function
-    """
-    assert function(input) == output

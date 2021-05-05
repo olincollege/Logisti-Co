@@ -84,7 +84,7 @@ tower_update_ready_cases = [
     (100, 0, True),
 
 ]
-@pytest.mark.parametrize("rate, output",tower_update_ready_cases)
+@pytest.mark.parametrize("update_count, rate, output", tower_update_ready_cases)
 def test_tower_update_ready(update_count, rate, output):
     """
     Test reset timer on Tower class.
@@ -96,5 +96,3 @@ def test_tower_update_ready(update_count, rate, output):
     for i in len(update_count):
         tower.update_ready()
     assert tower.ready == output
-
-
