@@ -34,11 +34,11 @@ class Package(pygame.sprite.Sprite):
         Args:
             x: the x-axis location of the package in pixels
             y: the y-axis location of the package in pixels
-            path: a list of coordinates depicting the pixel waypoints the package
-            should reach.
+            path: a list of tuple coordinates depicting the pixel waypoints the
+                  package should reach.
         """
         
-        self._location = [x,y]
+        self._location = (x,y)
         self._path = path
 
         super(Package, self).__init__()
@@ -69,6 +69,9 @@ class Package(pygame.sprite.Sprite):
         self._location = (self._location[0]+displacement[0], self._location[1]+displacement[1])
         
         self._rect.center = (int(self._location[0]), int(self._location[1]))
+
+        # Report successful behavior
+        return True
 
     @property
     def location(self):
