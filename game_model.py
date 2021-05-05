@@ -61,8 +61,11 @@ class Package(pygame.sprite.Sprite):
         # with a certain speed
         distance = ((self.location[0] - self._path[0][0])**2 + \
                     (self.location[1] - self._path[0][1])**2)**(1/2)
-        direction = ((self._path[0][0] - self.location[0])/distance, \
-                    (self._path[0][1] - self.location[1])/distance)
+        if distance == 0:
+            direction = (0,0)
+        else:
+            direction = ((self._path[0][0] - self.location[0])/distance, \
+                        (self._path[0][1] - self.location[1])/distance)
         # The speed, in pixels/tic, which the package will move
         speed = 1
         displacement = (direction[0]*speed, direction[1]*speed)
