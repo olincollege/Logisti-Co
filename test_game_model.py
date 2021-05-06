@@ -1,10 +1,9 @@
 """
-Test functions
+Test Logisti-Co model functions.
 """
 
 import pytest
 import pygame
-import game_model
 from game_model import (
     Package,
     ColorPackage,
@@ -27,8 +26,8 @@ package_move_cases = [
     # test no moving on provided path
     (0, 0, [(0,0),(0,0)],   (0,0)),
 ]
-@pytest.mark.parametrize("x, y, path, output",package_move_cases)
-def test_package_move(x, y, path, output):
+@pytest.mark.parametrize("x_pos, y_pos, path, output",package_move_cases)
+def test_package_move(x_pos, y_pos, path, output):
     """
     Test movement of Package class.
 
@@ -39,7 +38,7 @@ def test_package_move(x, y, path, output):
               package should reach.
         output: expected output of the function.
     """
-    package = Package(x, y, path)
+    package = Package(x_pos, y_pos, path)
     package.move()
     assert package.location == output
 
@@ -59,19 +58,19 @@ package_no_move_cases = [
     # test moving 1 pixel over in negative y direction was successful
     (0, 0, [(0,0),(0,-10)],   True),
 ]
-@pytest.mark.parametrize("x, y, path, output",package_no_move_cases)
-def test_package_no_move(x, y, path, output):
+@pytest.mark.parametrize("x_pos, y_pos, path, output",package_no_move_cases)
+def test_package_no_move(x_pos, y_pos, path, output):
     """
     Test movement of Package class.
 
     Args:
-        x: the x-axis location of the package in pixels
-        y: the y-axis location of the package in pixels
+        x_pos: the x-axis location of the package in pixels
+        y_pos: the y-axis location of the package in pixels
         path: a list of tuple coordinates depicting the pixel waypoints the
               package should reach.
         output: expected output of the function.
     """
-    package = Package(x, y, path)
+    package = Package(x_pos, y_pos, path)
     assert package.move() == output
 
 ############ CONSTRUCTION BELOW ################
@@ -85,6 +84,10 @@ tower_update_ready_cases = [
     (100, 0, True),
 
 ]
+# pylint: disable=no-member
+pygame.init()
+_ = pygame.display.set_mode([1, 1])
+
 @pytest.mark.parametrize("update_count, rate, output", tower_update_ready_cases)
 def test_tower_update_ready(update_count, rate, output):
     """
@@ -95,24 +98,24 @@ def test_tower_update_ready(update_count, rate, output):
         output: expected output of the function.
     """
     tower = Tower(0, 0, rate, 10)
-    for i in len(update_count):
+    for _ in range(update_count):
         tower.update_ready()
     assert tower.ready == output
 
-# Define sets of test cases.
-factory_update_robots_cases = [
-    # test 
-    (amount_robot,amount_packages,[(x,y)],[(a,b)],robot_rate,cycle_count, output)
+# # Define sets of test cases.
+# factory_update_robots_cases = [
+#     # test
+#     (amount_robot,amount_packages,[(x,y)],[(a,b)],robot_rate,cycle_count, output)
 
-    #
-]
+#     #
+# ]
 
-@pytest.mark.parametrize("tower_count,output", factory_update_robots_cases)
-def test_factory_update_robots(tower_count,output):
-    """
-    
-    Args:
-        output: expected output of the function.
-    """
-    factory = Factory(tower_count)
-    assert factory. == output
+# @pytest.mark.parametrize("tower_count,output", factory_update_robots_cases)
+# def test_factory_update_robots(tower_count,output):
+#     """
+
+#     Args:
+#         output: expected output of the function.
+#     """
+#     factory = Factory(tower_count)
+#     assert factory. == output
