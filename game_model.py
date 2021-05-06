@@ -1,11 +1,20 @@
 """
 Logisti-Co game model.
 """
+from pygame.locals import (
+    RLEACCEL,
+)
+import os
 import pygame
 import game_view
 import game_control
 # pylint: disable=no-member
 pygame.init()
+
+BOX_TEXTURE = pygame.image.load(f'./game_assets/box_texture/box.png')
+BOX_SIZE = BOX_TEXTURE.get_size()
+BOX_TEXTURE = pygame.transform.scale(BOX_TEXTURE, (int(BOX_SIZE[0]*0.075), \
+                                                   int(BOX_SIZE[1]*0.075)))
 
 class Package(pygame.sprite.Sprite):
     """
@@ -32,8 +41,8 @@ class Package(pygame.sprite.Sprite):
         self._path = path
 
         super().__init__()
-        self.surf = pygame.Surface((25, 25))
-        self.surf.fill((128, 128, 128))
+        self.surf = BOX_TEXTURE.convert_alpha()
+        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect()
         self.rect.center = (int(self._location[0]), int(self._location[1]))
 
@@ -110,10 +119,36 @@ class ColorPackage(Package):
         """
         return self._color
 
-TOWER_SPRITES = []
-FRAME_COUNT = 40
-for i in range(FRAME_COUNT):
-    TOWER_SPRITES.append(pygame.image.load(f'./game_assets/Robot Animation Frames/frame{i}.gif'))
+TOWER_FRAMES_Y = []
+FRAME_COUNT = 66
+IMAGEDIR = "./game_assets/Robot Animation Frames/yellow"
+for subdir,dir,files in os.walk(IMAGEDIR):
+    for file in files:
+        image = pygame.image.load(os.path.join(subdir,file))
+        size = image.get_size()
+        image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
+        image = pygame.transform.rotate(image, -90)
+        image.set_colorkey((255, 255, 255), RLEACCEL)
+        TOWER_FRAMES_Y.append(image)
+
+# for index in range(FRAME_COUNT_Y):
+#     # Load and Scale animation frames for robot
+#     image = pygame.image.load(f'./game_assets/Robot Animation Frames/yellow/frame{index}.gif')
+#     size = image.get_size()
+#     image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
+#     image = pygame.transform.rotate(image, -90)
+#     TOWER_FRAMES_Y.append(image)
+
+# TOWER_FRAMES_B = []
+# FRAME_COUNT_B = 65
+# for index in range(FRAME_COUNT_B):
+#     # Load and Scale animation frames for robot
+#     image = pygame.image.load(f'./game_assets/Robot Animation Frames/blue/frame{index}.gif')
+#     size = image.get_size()
+#     image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
+#     image = pygame.transform.rotate(image, -90)
+#     TOWER_FRAMES_B.append(image)
+    
 
 # pylint: disable=too-many-instance-attributes
 class Tower(pygame.sprite.Sprite):
@@ -121,7 +156,7 @@ class Tower(pygame.sprite.Sprite):
     Representation of the robot tower.
 
     Attributes:
-        _sprites: a list of GIF images representing the keyframes of the tower.
+        _frames: a list of GIF images representing the keyframes of the tower.
         _location: the location of the package in cartesian coordinates
         _rate: the rate at which the tower can process ColorPackage classes.
         _radius: the distance from the tower which the robot can process
@@ -131,7 +166,7 @@ class Tower(pygame.sprite.Sprite):
         _tick: an int representing how much time has passed since the _ready
                attribute was changed.
     """
-    def __init__(self,x_pos,y_pos,rate,radius):
+    def __init__(self,x_pos,y_pos,rate,radius,frames):
         """
         Initialize robot tower.
 
@@ -142,8 +177,8 @@ class Tower(pygame.sprite.Sprite):
             radius: the distance from the tower which the robot can process
                     packages.
         """
-        self._sprites = TOWER_SPRITES
-        self._current_sprite = 0
+        self._frames = frames
+        self._current_frame = 0
         self._animating = False
 
 
@@ -154,22 +189,18 @@ class Tower(pygame.sprite.Sprite):
         self._tick = 0
 
         super().__init__()
-        self.surf = self._sprites[self._current_sprite].convert()
-        size = self.surf.get_size()
-        self.surf = pygame.transform.scale(self.surf, (int(size[0]*0.1), int(size[1]*0.1)))
-        self.surf = pygame.transform.rotate(self.surf, -90)
+        self.surf = self._frames[self._current_frame].convert_alpha()
         self.rect = self.surf.get_rect(center = self._location)
 
-    def update_sprite(self):
+    def update_frame(self):
         """
         Update the sprite of the robot to the next animation frame.
         """
-        self._current_sprite += 1
-        print(f"Current Sprite: {self._current_sprite}")
-        self.surf = self._sprites[self._current_sprite].convert()
-        if self._current_sprite >= len(self._sprites)-1:
-            self._current_sprite = 0
-            self.surf = self._sprites[self._current_sprite].convert()
+        self._current_frame = 1.5 * self._tick / (self._rate/(FRAME_COUNT-1))
+        self.surf = self._frames[int(self._current_frame)].convert_alpha()
+        if self._current_frame >= len(self._frames)-1:
+            self._current_frame = 0
+            self.surf = self._frames[self._current_frame].convert_alpha()
             self._animating = False
 
     def animate(self):
@@ -177,7 +208,6 @@ class Tower(pygame.sprite.Sprite):
         Change _animating attribute to True.
         """
         self._animating = True
-        print(self._animating)
 
     def ready_reset(self):
         """
@@ -193,6 +223,14 @@ class Tower(pygame.sprite.Sprite):
         if self._tick >= self._rate:
             self._ready = True
         self._tick += 1
+
+    def update(self):
+        """
+        Update all conditions of the Tower instance.
+        """
+        self.update_ready()
+        if self._animating:
+            self.update_frame()
 
     @property
     def ready(self):
@@ -336,14 +374,7 @@ class Factory():
                     self._packed += 1
                     self._money += 25
                     robot.ready_reset()
-            robot.update_ready()
-            if robot.animating:
-                robot.update_sprite()
-                size = robot.surf.get_size()
-                robot.surf = pygame.transform.scale(robot.surf, \
-                                (int(size[0]*0.1), int(size[1]*0.1)))
-                robot.surf = pygame.transform.rotate(robot.surf, -90)
-                robot.rect = robot.surf.get_rect(center = robot.location)
+            robot.update()
 
     def update_packages(self):
         """
@@ -367,7 +398,7 @@ class Factory():
                     is packed & removed by the Tower instance.
         """
         if self._money >= 100:
-            self._robots.add(Tower(x_pos,y_pos,rate,radius))
+            self._robots.add(Tower(x_pos,y_pos,rate,radius,TOWER_FRAMES_Y))
             self._money += -100
             
 
