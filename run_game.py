@@ -1,7 +1,7 @@
 """
-Run Logisti-Co game.
+Run Logisti Co. game.
 """
 import game_model as gm
 
-fac = gm.Factory(3)
+fac = gm.Factory(100)
 fac.main()

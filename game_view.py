@@ -51,7 +51,7 @@ class PyGameView(View):
         self._screen = pygame.display.set_mode([1100, 600])
         self._successful_packages = VisualText("Successes: ", (800, 0), 30)
         self._failed_packages = VisualText("Failures: ", (800, 50), 30)
-        self._available_towers = VisualText("Towers Available: ", (800, 100), 30)
+        self._available_towers = VisualText("Money: ", (800, 100), 30)
 
     def draw(self):
         """
@@ -69,7 +69,7 @@ class PyGameView(View):
 
         self._successful_packages.update(self._gameboard.packed)
         self._failed_packages.update(self._gameboard.failed)
-        self._available_towers.update(self._gameboard.tower_count)
+        self._available_towers.update(self._gameboard.money)
         self._screen.blit(self._successful_packages.text, self._successful_packages.location)
         self._screen.blit(self._failed_packages.text, self._failed_packages.location)
         self._screen.blit(self._available_towers.text, self._available_towers.location)
@@ -89,7 +89,7 @@ class VisualText():
     """
 
     def __init__(self, text_label, location, font_size):
-        self._font = pygame.font.SysFont('arial', font_size)
+        self._font = pygame.font.Font('./game_assets/fonts/Mayor.ttf', font_size)
         self.text_label = text_label
         self.color = (255, 255, 255)
         self._text = self._font.render(text_label, True, self.color)

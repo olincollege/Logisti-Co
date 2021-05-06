@@ -282,7 +282,7 @@ class Factory():
         _packed: an integer which represents the number of Package instances
                  that the Tower instances has processed.
     """
-    def __init__(self,tower_count):
+    def __init__(self,starting_money):
         """
         Initializes factory floor gameboard.
 
@@ -294,12 +294,13 @@ class Factory():
         """
         self._packages = pygame.sprite.Group()
         self._robots = pygame.sprite.Group()
-        self._tower_count = tower_count
+        
         self._path = [(0,84), (675,84), (675,213), (112,213), \
                       (112,366), (675,366), (675,526), (0,526)]
         self._packed = 0
         self._failed = 0
         self._view = game_view.PyGameView(self)
+        self._money = starting_money
 
     def main(self):
         """
@@ -333,6 +334,7 @@ class Factory():
                     closest_package.kill()
                     robot.animate()
                     self._packed += 1
+                    self._money += 25
                     robot.ready_reset()
             robot.update_ready()
             if robot.animating:
@@ -364,9 +366,10 @@ class Factory():
             radius: an int which represents how far a package can be before it
                     is packed & removed by the Tower instance.
         """
-        if self._tower_count > 0:
+        if self._money >= 100:
             self._robots.add(Tower(x_pos,y_pos,rate,radius))
-            self._tower_count += -1
+            self._money += -100
+            
 
     def generate_package(self):
         """
@@ -400,8 +403,9 @@ class Factory():
         Remove the tower from gameplay, and increase the number of available
         towers.
         """
+        self._money += 100
         tower.kill()
-        self._tower_count += 1
+        
 
     @property
     def packages(self):
@@ -418,18 +422,11 @@ class Factory():
         return self._robots
 
     @property
-    def robots(self):
+    def money(self):
         """
-        Returns the list of Tower instances.
+        Returns amount of money available to the player.
         """
-        return self._robots
-
-    @property
-    def tower_count(self):
-        """
-        Returns number of Tower instances that the player can place.
-        """
-        return self._tower_count
+        return self._money
 
     @property
     def packed(self):

@@ -55,6 +55,7 @@ class MouseControl(Control):
         super().__init__(gameboard)
         self.events = []
         self.mouse_pos = ()
+        self.selected_tower = 0
 
     def control(self):
         """
