@@ -121,23 +121,25 @@ class ColorPackage(Package):
 
 TOWER_FRAMES_Y = []
 FRAME_COUNT = 66
-IMAGEDIR = "./game_assets/Robot Animation Frames/yellow"
-for subdir,dir,files in os.walk(IMAGEDIR):
-    for file in files:
-        image = pygame.image.load(os.path.join(subdir,file))
-        size = image.get_size()
-        image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
-        image = pygame.transform.rotate(image, -90)
-        image.set_colorkey((255, 255, 255), RLEACCEL)
-        TOWER_FRAMES_Y.append(image)
+IMAGEDIR = "./game_assets/robot_animation_frames/yellow"
+# for subdir,_,files in os.walk(IMAGEDIR):
+#     for file in files:
+#         image = pygame.image.load(os.path.join(subdir,file))
+#         size = image.get_size()
+#         image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
+#         image = pygame.transform.rotate(image, -90)
+#         image.set_colorkey((255, 255, 255), RLEACCEL)
+#         TOWER_FRAMES_Y.append(image)
 
-# for index in range(FRAME_COUNT_Y):
-#     # Load and Scale animation frames for robot
-#     image = pygame.image.load(f'./game_assets/Robot Animation Frames/yellow/frame{index}.gif')
-#     size = image.get_size()
-#     image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
-#     image = pygame.transform.rotate(image, -90)
-#     TOWER_FRAMES_Y.append(image)
+for index in range(FRAME_COUNT):
+    # Load and Scale animation frames for robot
+    file_number = str(10000 + index)[1:]
+    image = pygame.image.load(f'./game_assets/robot_animation_frames/yellow/box_asset{file_number}.png')
+    size = image.get_size()
+    image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
+    image = pygame.transform.rotate(image, -90)
+    image.set_colorkey((255, 255, 255), RLEACCEL)
+    TOWER_FRAMES_Y.append(image)
 
 # TOWER_FRAMES_B = []
 # FRAME_COUNT_B = 65
@@ -197,6 +199,7 @@ class Tower(pygame.sprite.Sprite):
         Update the sprite of the robot to the next animation frame.
         """
         self._current_frame = 1.5 * self._tick / (self._rate/(FRAME_COUNT-1))
+        print(self._current_frame)
         self.surf = self._frames[int(self._current_frame)].convert_alpha()
         if self._current_frame >= len(self._frames)-1:
             self._current_frame = 0
@@ -289,7 +292,7 @@ class ColorTower(Tower):
                     process an incoming package.
             color: a str describing the color of the package
         """
-        super().__init__(x_pos,y_pos,rate,radius)
+        super().__init__(x_pos,y_pos,rate,radius,frames)
         self._color = color
         self.surf.fill(self.get_rgb())
         self._tower_colors = {"red":(255,0,0),"green":(0,255,0),"blue":(0,0,255)}
