@@ -43,6 +43,11 @@ class Control(ABC):
 class MouseControl(Control):
     """
     A cursor based controller for Logisti Co. game.
+
+    Attributes:
+        events: a list of all of the user inputs taken by Pygame.
+        mouse_pos: a tuple which contains the current x and y coordinates of
+                   user's cursor.
     """
 
     def __init__(self, gameboard):
@@ -55,14 +60,10 @@ class MouseControl(Control):
         super().__init__(gameboard)
         self.events = []
         self.mouse_pos = ()
-        self.selected_tower = 0
 
     def control(self):
         """
-        Initialize events and mouse position.
-
-        Args:
-            gameboard: a Factory instance.
+        Get user input and update game model.
         """
         self.get_events()
         self.get_mouse_pos()
