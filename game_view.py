@@ -44,14 +44,26 @@ class PyGameView(View):
 
     Attributes:
         _screen: the PyGame Display instance.
+        _successful_packages: a VisualText which shows the number of packages
+                              that Tower instances have handled.
+        _lives: a VisualText which shows the number of lives the player has
+                left.
+        _available_towers: a VisualText which shows the number of Tower
+                           instances available to be placed.
     """
 
     def __init__(self, gameboard):
+        """
+        Initialize PyGameView
+
+        Args:
+            gameboard: a Factory instance.
+        """
         super().__init__(gameboard)
         self._screen = pygame.display.set_mode([1100, 600])
-        self._successful_packages = VisualText("Successes: ", (800, 0), 30)
-        self._failed_packages = VisualText("Failures: ", (800, 50), 30)
-        self._available_towers = VisualText("Money: ", (800, 100), 30)
+        self._successful_packages = VisualText("Successes: ", (850, 20), 30)
+        self._lives = VisualText("Lives: ", (850, 70), 30)
+        self._available_towers = VisualText("Money: ", (850, 120), 30)
 
     def draw(self):
         """
@@ -68,14 +80,15 @@ class PyGameView(View):
             self._screen.blit(tower.surf, tower.rect)
 
         self._successful_packages.update(self._gameboard.packed)
-        self._failed_packages.update(self._gameboard.failed)
+        self._lives.update(10 - self._gameboard.failed)
         self._available_towers.update(self._gameboard.money)
-        self._screen.blit(self._successful_packages.text, self._successful_packages.location)
-        self._screen.blit(self._failed_packages.text, self._failed_packages.location)
-        self._screen.blit(self._available_towers.text, self._available_towers.location)
+        self._screen.blit(self._successful_packages.text, \
+                          self._successful_packages.location)
+        self._screen.blit(self._lives.text, \
+                          self._lives.location)
+        self._screen.blit(self._available_towers.text, \
+                          self._available_towers.location)
         pygame.display.flip()
-
-
 
 class VisualText():
     """
@@ -113,3 +126,36 @@ class VisualText():
         Returns a pygame text Surface to be overlayed on the game window.
         """
         return self._text
+
+class HealthBar(pygame.sprite.Sprite):
+    """
+    Visualization of the user's current health.
+
+    Attributes:
+        _current_length: an int representing the current length of the healthbar
+        _base_length: an int which represents 
+    """
+    def __init__(self, base_length, base_width):
+        """
+        Initialize healthbar characteristics.
+
+        Args:
+            base_length: an int representing the initial length of the
+                         healthbar.
+            base_width: an int representing the initial width of the healthbar.
+        """
+        self._current_length = length
+        self._base_length = length
+        self._width = width
+        self._full_health = 10
+        self._location = []
+
+    def update(self,health):
+        """
+        Update health value.
+
+        Args:
+            health: an int representing the user's health
+        """
+        self._length = self._base_length*health
+        pass
