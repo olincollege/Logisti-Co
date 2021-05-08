@@ -12,7 +12,6 @@ class View(ABC):
 
     Attrbitues:
         _gameboard: the active Factory instance.
-        _screen: the PyGame Display instance.
     """
 
     def __init__(self, gameboard):
@@ -97,11 +96,25 @@ class VisualText():
     Attributes:
         _font: a pygame Font instance used for rendering fonts.
         text_label: a string denoting what to place before text being passed
-        in. (eg "Score: ")
+                    in. (eg "Score: ")
         color: a tuple denoting RGB color values for the text.
+        _text: a Pygame Font instance.
+        location: a tuple containing x and y position of the given Font
+                  instance.
     """
 
     def __init__(self, text_label, location, font_size):
+        """
+        Initialize VisualText class.
+
+        Args:
+            text_label: a string denoting what to place before text being passed
+                        in. (eg "Score: ")
+            location: a tuple containing x and y position of the given Font
+                      instance.
+            font_size: an int reprensenting the pixel size of the Pygame Font
+                       instance.
+        """
         self._font = pygame.font.Font('./game_assets/fonts/Mayor.ttf', font_size)
         self.text_label = text_label
         self.color = (255, 255, 255)
@@ -126,36 +139,3 @@ class VisualText():
         Returns a pygame text Surface to be overlayed on the game window.
         """
         return self._text
-
-class HealthBar(pygame.sprite.Sprite):
-    """
-    Visualization of the user's current health.
-
-    Attributes:
-        _current_length: an int representing the current length of the healthbar
-        _base_length: an int which represents 
-    """
-    def __init__(self, base_length, base_width):
-        """
-        Initialize healthbar characteristics.
-
-        Args:
-            base_length: an int representing the initial length of the
-                         healthbar.
-            base_width: an int representing the initial width of the healthbar.
-        """
-        self._current_length = length
-        self._base_length = length
-        self._width = width
-        self._full_health = 10
-        self._location = []
-
-    def update(self,health):
-        """
-        Update health value.
-
-        Args:
-            health: an int representing the user's health
-        """
-        self._length = self._base_length*health
-        pass
