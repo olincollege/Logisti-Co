@@ -52,6 +52,9 @@ class Package(pygame.sprite.Sprite):
     def move(self):
         """
         Move the package for the game tick along the path.
+
+        Returns:
+            bool: False if the end of the path has been reached, else True.
         """
         # Move onto the next waypoint if reached
         if self._rect.center == self._path[0]:
