@@ -32,8 +32,8 @@ def test_package_move(x_pos, y_pos, path, output):
     Test movement of Package class.
 
     Args:
-        x: the x-axis location of the package in pixels
-        y: the y-axis location of the package in pixels
+        x_pos: the x-axis location of the package in pixels
+        y_pos: the y-axis location of the package in pixels
         path: a list of tuple coordinates depicting the pixel waypoints the
               package should reach.
         output: expected output of the function.
@@ -94,6 +94,7 @@ def test_tower_update_ready(update_count, rate, output):
     Test reset timer on Tower class.
 
     Args:
+        update_count: the number of game ticks which the game is simulated.
         rate: the rate at which the tower can process Package classes.
         output: expected output of the function.
     """
