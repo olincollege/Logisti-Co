@@ -23,7 +23,7 @@ class Package(pygame.sprite.Sprite):
     Attributes:
         _location: a tuple of floats representing the location of the package
                    in cartesian coordinates.
-        _path: a list of coordinates depicting the pixel waypoints the package
+        _path: a list of tuple coordinates depicting the pixel waypoints the package
                should reach.
         _surf: an image which represents the Package instance in the view.
         _rect: a Pygame Rect object storing the rectangular coordinates of the
@@ -81,6 +81,7 @@ class Package(pygame.sprite.Sprite):
         # Report successful behavior
         return True
 
+    # All of the properties created here
     @property
     def location(self):
         """
@@ -88,6 +89,21 @@ class Package(pygame.sprite.Sprite):
         """
         return self._location
 
+    @property
+    def surf(self):
+        """
+        Returns the surface of the package.
+        """
+        return self._surf
+
+    @property
+    def rect(self):
+        """
+        Returns the pixel position of the package.
+        """
+        return self._rect
+
+# Build Assets for Robot Towers.
 TOWER_FRAMES_Y = []
 FRAME_COUNT = 66
 IMAGEDIR = "./game_assets/robot_animation_frames/yellow"
@@ -193,6 +209,7 @@ class Tower(pygame.sprite.Sprite):
         if self._animating:
             self.update_frame()
 
+    # All of the properties created here
     @property
     def ready(self):
         """
@@ -227,6 +244,20 @@ class Tower(pygame.sprite.Sprite):
         Returns active radius of the tower.
         """
         return self._radius
+
+    @property
+    def surf(self):
+        """
+        Returns the surface of the tower.
+        """
+        return self._surf
+
+    @property
+    def rect(self):
+        """
+        Returns the pixel position of the tower.
+        """
+        return self._rect
 
 class Factory():
     """
@@ -277,6 +308,7 @@ class Factory():
                 # pylint: disable=no-member
                 if event.type == pygame.locals.QUIT:
                     running = False
+            # Update all of the game objects
             generator.update()
             self.update_packages()
             self.update_robots()
@@ -328,11 +360,11 @@ class Factory():
             self._robots.add(Tower(x_pos,y_pos,rate,radius,TOWER_FRAMES_Y))
             self._money += -100
 
-    def generate_package(self):
+    def generate_package(self, path):
         """
-        Create a tower at the start of the path
+        Create a package at the start of the path
         """
-        self._packages.add(Package(self._path[0][0],self._path[0][1],self._path))
+        self._packages.add(Package(path[0][0],path[0][1],path))
 
     def closest_to(self,robot):
         """
@@ -366,6 +398,7 @@ class Factory():
         self._money += 100
         tower.kill()
 
+    # All of the properties created here
     @property
     def packages(self):
         """
@@ -411,7 +444,7 @@ class Generator():
                    generate a package instance.
         _path: a list of tuple coordinates which represent the route a package
                will take.
-        _tick_count: an int reprensenting the current generator tick.
+        _tick_count: an int representing the current generator tick.
     """
     def __init__(self, factory, gen_rate, path):
         """
@@ -429,11 +462,6 @@ class Generator():
         self._path = path
         self._tick_count = 0
 
-    def generate_package(self):
-        """
-        Generates a new package in the Factory instance.
-        """
-        self._factory.generate_package()
 
     def update(self):
         """
@@ -441,8 +469,9 @@ class Generator():
         """
         self._tick_count += 1
         if self._tick_count % self._gen_rate == 0:
-            self.generate_package()
+            self._factory.generate_package(self._path)
 
+    # All of the properties created here
     @property
     def tick_count(self):
         """
@@ -482,7 +511,7 @@ class IncreasingGenerator(Generator):
         """
         self._tick_count += 1
         if self._tick_count >= self._gen_rate:
-            self.generate_package()
+            self._factory.generate_package(self._path)
             if self._gen_rate >= 30:
                 self._gen_rate += - self._decrease
             self._tick_count = 0
@@ -518,7 +547,7 @@ class ExponentialGenerator(Generator):
         """
         self._tick_count += 1
         if self._tick_count >= self._gen_rate:
-            self.generate_package()
+            self._factory.generate_package(self._path)
             if self._gen_rate >= 30:
                 self._gen_rate *= self._proportion
             self._tick_count = 0
