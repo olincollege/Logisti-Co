@@ -23,8 +23,8 @@ class Package(pygame.sprite.Sprite):
     Attributes:
         _location: a tuple of floats representing the location of the package
                    in cartesian coordinates.
-        _path: a list of tuple coordinates depicting the pixel waypoints the package
-               should reach.
+        _path: a list of tuples of int coordinates depicting the pixel waypoints
+               the package should reach.
         _surf: an image which represents the Package instance in the view.
         _rect: a Pygame Rect object storing the rectangular coordinates of the
                Package surface in pixel.
@@ -34,8 +34,10 @@ class Package(pygame.sprite.Sprite):
         Initializes package location, path, and sprite object
 
         Args:
-            x_pos: the x-axis location of the package in pixels
-            y_pos: the y-axis location of the package in pixels
+            x_pos: an int representing the x-axis location of the package in
+                   pixels.
+            y_pos: an int representing the y-axis location of the package in
+                   pixels.
             path: a list of tuple coordinates depicting the pixel waypoints the
                   package should reach.
         """
@@ -129,10 +131,12 @@ class Tower(pygame.sprite.Sprite):
                         instance should display.
         _animating: a boolean telling the Tower instance whether it should
                     be animating or not.
-        _location: the location of the package in cartesian coordinates
-        _rate: the rate at which the tower can process ColorPackage classes.
-        _radius: the distance from the tower which the robot can process
-                    packages.
+        _location: a tuple of floats representing the location of the package
+                   in cartesian coordinates
+        _rate: an int representing the rate at which the tower can process
+               Package classes.
+        _radius: a float representing the distance from the tower which the
+                 robot can process packages.
         _ready: a bool status indicating whether the Tower is ready to receive
                 a package or not.
         _tick: an int representing how much time has passed since the _ready
@@ -147,8 +151,10 @@ class Tower(pygame.sprite.Sprite):
         Initialize robot tower.
 
         Args:
-            x_pos: the x-axis location of the package in pixels
-            y_pos: the y-axis location of the package in pixels
+            x_pos: an int representing the x-axis location of the package in
+                   pixels.
+            y_pos: an int representing the y-axis location of the package in
+                   pixels.
             rate: the rate at which the tower can process Package classes.
             radius: the distance from the tower which the robot can process
                     packages.
@@ -267,8 +273,8 @@ class Factory():
     Attributes:
         _packages: a pygame Group of the generated Package instances.
         _robots: a pygame Group of the generated Tower instances.
-        _path: a list of tuples which represent waypoints for Package instances
-               to follow.
+        _path: a list of tuples of ints which represent waypoints for Package
+               instances to follow.
         _packed: an integer which represents the number of Package instances
                  that the Tower instances has processed.
         _failed: an integer which represents the number of Package instances
@@ -350,8 +356,10 @@ class Factory():
         Create a tower given a positional input.
 
         Args:
-            x_pos: the x-axis location of the package in pixels
-            y_pos: the y-axis location of the package in pixels
+            x_pos: an int representing the x-axis location of the package in
+                   pixels.
+            y_pos: an int representing the y-axis location of the package in
+                   pixels.
             rate: an int which represents how many ticks a tower will take to
                   wait after processing a package.
             radius: an int which represents how far a package can be before it
@@ -435,6 +443,13 @@ class Factory():
         """
         return self._failed
 
+    @property
+    def path(self):
+        """
+        Returns the path list.
+        """
+        return self._path
+
 class Generator():
     """
     A generator of Package objects for Logisti Co. game.
@@ -443,8 +458,8 @@ class Generator():
         _factory: the Factory instance to generate.
         _gen_rate: an integer representing the number of game ticks needed to
                    generate a package instance.
-        _path: a list of tuple coordinates which represent the route a package
-               will take.
+        _path: a list of tuples of ints coordinates which represent the route a
+               package will take.
         _tick_count: an int representing the current generator tick.
     """
     def __init__(self, factory, gen_rate, path):
@@ -455,8 +470,8 @@ class Generator():
             factory: a Factory instance.
             gen_rate: an integer representing the number of game ticks needed
                       to generate a package.
-            path: a list of tuple coordinates which represent the route a
-                  package will take.
+            path: a list of tuples of ints which represent the coordinates
+                  for the route a package will take.
         """
         self._factory = factory
         self._gen_rate = gen_rate
@@ -480,43 +495,6 @@ class Generator():
         """
         return self._tick_count
 
-class IncreasingGenerator(Generator):
-    """
-    A generator which linearly increases the rate at which it produces
-    packages.
-
-    Attributes:
-        _decrease: a float denoting the linear decrease in time to generate
-        a package per tick.
-    """
-    def __init__(self, factory, gen_rate, path, decrease):
-        """
-        Initialize _decrease attribute, inherit from Generator class.
-
-        Args:
-            factory: a Factory instance.
-            gen_rate: an integer representing the number of game ticks needed
-                      to generate a package.
-            path: a list of tuple coordinates which represent the route a
-                  package will take.
-            decrease: a float reprensenting the linear decrease in the interval
-                      between package instance generation.
-        """
-        super().__init__(factory, gen_rate, path)
-        self._decrease = decrease
-
-    def update(self):
-        """
-        Increment _tick_count, generate packages if the tick is larger than
-        rate, and decrease the time to produce a package.
-        """
-        self._tick_count += 1
-        if self._tick_count >= self._gen_rate:
-            self._factory.generate_package(self._path)
-            if self._gen_rate >= 30:
-                self._gen_rate += - self._decrease
-            self._tick_count = 0
-
 class ExponentialGenerator(Generator):
     """
     A generator which exponentially increases the rate at which it produces
@@ -534,8 +512,8 @@ class ExponentialGenerator(Generator):
             factory: a Factory instance.
             gen_rate: an integer representing the number of game ticks needed
                       to generate a package.
-            path: a list of tuple coordinates which represent the route a
-                  package will take.
+            path: a list of tuples of ints which represent the coordinates
+                  for the route a package will take.
             proportion: a float representing the factor of exponential decay.
         """
         super().__init__(factory, gen_rate, path)

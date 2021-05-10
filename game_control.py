@@ -77,7 +77,6 @@ class MouseControl(Control):
         """
         for event in self.events:
             if event.type == MOUSEBUTTONDOWN:
-                print(event.button)
                 return event.button
         return 0
 
