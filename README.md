@@ -32,6 +32,8 @@ This is a tower defense game, similar to other games of this genre (Bloons Tower
 
 3. Navigate to the repository directory within the terminal window.
 
-4. Run the command `pytest [FILENAME].py` to run a specific series of tests. Running the command `pytest *.py` to run all tests at once will not work as pytest will boot up our game rather than collecting all tests.
+4. Run the command `pytest [FILENAME].py` to run a specific series of tests. Running the command `pytest *.py` to run all tests at once will not work as pytest will boot up our game rather than collecting all tests. The following is a list of all the test files you can run:
+* test_game_model.py
+* test_game_control.py
 
 
