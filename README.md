@@ -23,3 +23,15 @@ This is a tower defense game, similar to other games of this genre (Bloons Tower
 5. Packages should flow through the path and get periodically dealt with by the robots you placed. Use the in-game currency to place more robots.
 
 6. End game by keyboard interrupt `ctrl+C` in the command line or by letting your lives run dry.
+
+## Testing Instructions
+
+1. Install the `pytest` and `pygame` libraries by using the command `pip install pytest pygame`
+
+2. Clone or download this repository into your desired directory.
+
+3. Navigate to the repository directory within the terminal window.
+
+4. Run the command `pytest [FILENAME].py` to run a specific series of tests, or run the command `pytest *.py` to run all tests at once.
+
+
