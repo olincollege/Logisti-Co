@@ -172,8 +172,9 @@ class Tower(pygame.sprite.Sprite):
         """
         Update the sprite of the robot to the next animation frame.
         """
-        self._current_frame = 1.5 * self._tick / (self._rate/(FRAME_COUNT-1))
-        print(self._current_frame)
+        self._current_frame = 1.5 * self._tick / (self._rate/(FRAME_COUNT))
+        if self._current_frame > (FRAME_COUNT - 1):
+            self._current_frame = FRAME_COUNT - 1
         self._surf = self._frames[int(self._current_frame)].convert_alpha()
         if self._current_frame >= len(self._frames)-1:
             self._current_frame = 0
@@ -535,7 +536,7 @@ class ExponentialGenerator(Generator):
                       to generate a package.
             path: a list of tuple coordinates which represent the route a
                   package will take.
-            proportion: a float reprensenting the factor of exponential decay.
+            proportion: a float representing the factor of exponential decay.
         """
         super().__init__(factory, gen_rate, path)
         self._proportion = proportion

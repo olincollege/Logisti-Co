@@ -111,7 +111,7 @@ def test_tower_update_ready(update_count, rate, output):
         rate: the rate at which the tower can process Package classes.
         output: expected output of the function.
     """
-    tower = gm.Tower(0, 0, rate, 10, TOWER_FRAMES_Y)
+    tower = gm.Tower(0, 0, rate, 10, gm.TOWER_FRAMES_Y)
     for _ in range(update_count):
         tower.update_ready()
     assert tower.ready == output
@@ -119,17 +119,41 @@ def test_tower_update_ready(update_count, rate, output):
 
 
 # Location cases for factory_update_robots_cases
-robot_locations_1 = [(0,0)]
-package_locations_1 = [(0,0)]
-
-
+locations_1 = {"Robot": [(0,0)], "Package": [(0,0)]}
+locations_2 = {"Robot": [(0,0)], "Package": [(0,0),(0,1)]}
+locations_3 = {"Robot": [(0,0)], "Package": [(0,0),(0,5)]}
+locations_4 = {"Robot": [(0,0)], "Package": [(10,0),(0,10)]}
+locations_5 = {"Robot": [(0,0), (0,0)], "Package": [(0,0),(0,0)]}
+locations_6 = {"Robot": [(0,0), (0,1)], "Package": [(0.1,0.1),(-0.1,0.9)]}
+locations_7 = {"Robot": [(0,0), (0,10)], "Package": [(0.1,0.1),(-100,-100)]}
 # Test the robots' ability to remove packages.
 factory_update_robots_cases = [
     # form([(x,y)],[(a,b)],robot_rate,cycle_count,radius,
     # packages_after) Where (x,y) are the locations of robots and (a,b) are the
     # locations of packages.
-    # Test base case, removing a single package with a single robot
-    (robot_locations_1,package_locations_1, 2, 3, 1, 0),
+    # Test base case, removing a single package with a single robot.
+    (locations_1["Robot"],locations_1["Package"], 2, 3, 1, 0),
+    # Test that if not enough time is given, the tower will not remove a
+    # package.
+    (locations_1["Robot"],locations_1["Package"], 9, 8, 1, 1),
+    # Test that if there are two packages in radius, the robot only removes one package.
+    (locations_2["Robot"],locations_2["Package"], 2, 3, 2, 1),
+    # Test that if there is one package in radius, and one package outside,
+    # that only one gets removed within a long period.
+    (locations_3["Robot"],locations_3["Package"], 2, 5, 1, 1),
+    # Test that if all packages are outside of the radius, that the tower
+    # removes none.
+    (locations_4["Robot"],locations_4["Package"], 2, 5, 1, 2),
+    # Test that the tower can remove multiple packages within radius, given
+    # enough time.
+    (locations_2["Robot"],locations_2["Package"], 2, 6, 2, 0),
+    # Test that two towers in the same place will remove both packages within a
+    # single robot rate time
+    (locations_5["Robot"],locations_5["Package"], 2, 3, 1, 0),
+    # Test that two towers in different locations and packages nearby will successfully remove all packages.
+    (locations_6["Robot"],locations_6["Package"], 2, 3, 1, 0),
+    # Test that multiple towers with one package in range and one out of range will only remove one package.
+    (locations_7["Robot"],locations_7["Package"], 2, 3, 1, 1),
 ]
 
 @pytest.mark.parametrize( \
@@ -140,6 +164,7 @@ def test_factory_update_robots( \
     """
     Test the robots' ability to remove packages.
     Args:
+        TODO: write good docstrings for these pytests
         output: expected output of the function.
     """
     # Generate a factory with near infinite funds
@@ -147,12 +172,22 @@ def test_factory_update_robots( \
     # Generate robots and packages per instructions
     for location in rob_locations:
         factory.generate_tower(location[0], location[1], rate, radius)
-    for location in rob_locations:
-        factory.generate_package([location])
+    for location in package_locations:
+        factory.generate_package([location]*2)
     for _ in range(cycle_count):
         factory.update_robots()
     # Determine if the number of packages is equal to the expected amount
     assert len(factory.packages) == packages_after
+
+
+
+
+test_closest_package_cases = [
+    # Test the Factory method closest_package for returning the closest package
+    # Form
+    ()
+]
+
 
 test_update_package_cases = [
     # Test that packages get removed after they reach the end of the path.
