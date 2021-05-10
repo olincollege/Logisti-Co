@@ -115,7 +115,7 @@ class VisualText():
             font_size: an int reprensenting the pixel size of the Pygame Font
                        instance.
         """
-        self._font = pygame.font.Font('./game_assets/fonts/Mayor.ttf', font_size)
+        self._font = pygame.font.Font("./game_assets/fonts/Mayor.ttf", font_size)
         self.text_label = text_label
         self.color = (255, 255, 255)
         self._text = self._font.render(text_label, True, self.color)

@@ -11,7 +11,7 @@ import game_control
 # pylint: disable=no-member
 pygame.init()
 
-BOX_TEXTURE = pygame.image.load('./game_assets/box_texture/box.png')
+BOX_TEXTURE = pygame.image.load("./game_assets/box_texture/box.png")
 BOX_SIZE = BOX_TEXTURE.get_size()
 BOX_TEXTURE = pygame.transform.scale(BOX_TEXTURE, (int(BOX_SIZE[0]*0.075), \
                                                    int(BOX_SIZE[1]*0.075)))
@@ -112,8 +112,8 @@ IMAGEDIR = "./game_assets/robot_animation_frames/yellow"
 
 for index in range(FRAME_COUNT):
     # Load and Scale animation frames for robot
-    image = pygame.image.load('./game_assets/robot_animation_frames/yellow' + \
-                              f'/box_asset{str(10000 + index)[1:]}.png')
+    image = pygame.image.load("./game_assets/robot_animation_frames/yellow" + \
+                              f"/box_asset{str(10000 + index)[1:]}.png")
     size = image.get_size()
     image = pygame.transform.scale(image, (int(size[0]*0.075), int(size[1]*0.075)))
     image = pygame.transform.rotate(image, -90)
