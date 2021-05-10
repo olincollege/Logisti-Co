@@ -2,16 +2,15 @@
 Test functions
 """
 
-import pytest
-import pygame
-import game_control as gc
-import game_model as gm
-
 # pylint: disable=no-name-in-module
 from pygame.locals import (
     MOUSEBUTTONDOWN,
     KEYDOWN,
 )
+
+import pytest
+import pygame
+import game_model as gm
 
 from test_helper_classes import (
     EventTest,
