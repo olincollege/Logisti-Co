@@ -6,7 +6,7 @@ This is a tower defense game, similar to other games of this genre (Bloons Tower
 
 ## Website
 
-https://sunsprint.github.io/Logisti-Co-Website/Home.html
+[Click this link!](https://sunsprint.github.io/Logisti-Co-Website/Home.html)
 
 ## Instructions for Use
 
