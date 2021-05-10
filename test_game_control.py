@@ -1,7 +1,7 @@
 """
 Test functions
 """
-import copy
+
 import pytest
 import pygame
 import game_control as gc
@@ -13,37 +13,49 @@ from pygame.locals import (
     KEYDOWN,
 )
 
+from test_helper_classes import (
+    EventTest,
+    MouseControlTest,
+)
+
 # pylint: disable=no-member
 pygame.init()
 _ = pygame.display.set_mode([1, 1])
 
-LEFT_CLICK = pygame.event.Event(MOUSEBUTTONDOWN,button=1)
-RIGHT_CLICK = pygame.event.Event(MOUSEBUTTONDOWN,button=3)
 
-class TestMouseControl(gc.MouseControl):
+LEFT_CLICK = EventTest(MOUSEBUTTONDOWN, 1)
+RIGHT_CLICK = EventTest(MOUSEBUTTONDOWN, 3)
+EXTRANEOUS_INPUT = EventTest(KEYDOWN, 0)
+
+test_detect_click_cases = [
+    # Form: (event_list, mouse_button)
+    # Test that no events returns 0.
+    ([], 0),
+    # Test that events but no click returns 0.
+    ([EXTRANEOUS_INPUT], 0),
+    # Test that a left click returns 1.
+    ([LEFT_CLICK], 1),
+    # Test that a left click returns 1.
+    ([RIGHT_CLICK], 3),
+    # Test that a left click and other events returns 1.
+    ([EXTRANEOUS_INPUT, LEFT_CLICK], 1),
+    # Test that a right click and other events returns 1.
+    ([EXTRANEOUS_INPUT, RIGHT_CLICK], 3),
+]
+
+@pytest.mark.parametrize("event_list, mouse_button",test_detect_click_cases)
+def test_detect_click(event_list, mouse_button):
     """
-    Create test class inheriting from MouseControl class.
+    Test that click detection performs as expected.
 
-    Attributes:
+    Args:
+        event_list: a list of pygame events.
+        mouse_button: an int describing which button is pressed
     """
-    def __init__(self,gameboard,events,mouse_pos):
-        """
-        """
-        super().__init__(gameboard)
-        self._events = events
-        self._mouse_pos = mouse_pos
-
-    def get_events(self):
-        """
-        Return inputted events.
-        """
-        return self._events
-    
-    def get_mouse_pos(self):
-        """
-        Return inputted mouse position.
-        """
-        return self._mouse_pos
+    # Generate factory with a small loan of $999,999,999
+    factory = gm.Factory(999999999)
+    control = MouseControlTest(factory, event_list, (0,0))
+    assert mouse_button == control.detect_click()
 
 test_place_tower_cases = [
     # Form: (events, mouse_pos,tower_count)
@@ -51,8 +63,8 @@ test_place_tower_cases = [
     ([],(0,0),0),
     # Test that a queued click places a tower.
     ([LEFT_CLICK],(1,1),1),
-    # Test that two queued clicks places two towers.
-    ([LEFT_CLICK,LEFT_CLICK],(1,1),2),
+    # Test that two queued clicks only places one tower.
+    ([LEFT_CLICK,LEFT_CLICK],(1,1),1),
     # Test that RIGHT_CLICK input doesn't place a tower.
     ([RIGHT_CLICK],(0,0),0),
     # Test that clicks outside of display range places no towers.
@@ -73,7 +85,7 @@ def test_place_tower(events,mouse_pos,tower_count):
     """
     # Generate factory with a small loan of $999,999,999
     factory = gm.Factory(999999999)
-    click_update = TestMouseControl(factory, events, mouse_pos)
+    click_update = MouseControlTest(factory, events, mouse_pos)
     click_update.control()
     assert len(factory.robots) == tower_count
 
@@ -91,7 +103,7 @@ test_remove_tower_cases = [
     # Test click outside of bounds doesn't do anything.
     ([RIGHT_CLICK],(1000,1000),0),
     # Test other inputs don't do anything.
-    ([KEYDOWN],(1,1),0),
+    ([EXTRANEOUS_INPUT],(1,1),0),
 ]
 
 # Locations of preset towers.
@@ -117,7 +129,7 @@ def test_remove_tower(events,mouse_pos,tower_removed_count):
     for tower in TOWER_LOCATIONS:
         factory.generate_tower(tower[0],tower[1],1,1)
 
-    click_update = TestMouseControl(factory, events, mouse_pos)
+    click_update = MouseControlTest(factory, events, mouse_pos)
     click_update.control()
 
     assert len(factory.robots) == 2-tower_removed_count

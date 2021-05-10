@@ -74,6 +74,8 @@ class MouseControl(Control):
     def detect_click(self):
         """
         Return click if MOUSEBUTTONDOWN event is detected, else 0.
+
+        Returns: an int corresponding to the mouse button pressed.
         """
         for event in self.events:
             if event.type == MOUSEBUTTONDOWN:
